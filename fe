@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+#Command Line Wizardry
+#commandlinewizardry.com
+
+#Foreach
+#Version 1.0
+
+if [ "$#" -lt 1 ]; then
+  printf "fe: missing operand\n"
+  printf "Try 'fe --help' for more information\n"
+
+  exit 1
+elif [ "$1" = "--help" ]; then
+  printf "Usage: fe [OPTION(S)] [COMMANDSTATEMENT]\n"
+  printf "\nReads in standard input line by line. Replaces '{}' in\n"
+  printf "COMMANDSTATEMENT with the line from standard input and then\n"
+  printf "executes the updated COMMANDSTATEMENT.\n"
+
+  printf "\nFe is similar to the -exec option in the find command, or a\n"
+  printf "simplified version of the xargs command.\n"
+
+  printf "\nOptions:\n"
+
+  printf "\n  -n       only print COMMANDSTATEMENT, do not execute it\n"
+
+  printf "\nUsage Example:\n"
+  printf "fe \'md5sum {}\' < filenames.txt\n"
+
+  printf "\nCommand Line Wizardry\n"
+  printf "https://www.commandlinewizardry.com\n"
+
+  exit 0
+elif [ "$1" = "-n" ]; then                 #Only print result
+  if [ "$#" -lt 2 ]; then
+    printf "fe: missing operand\n"
+    printf "Try 'fe --help' for more information\n"
+
+    exit 1
+  fi
+
+  TOEVAL=$2                                #Get command statement
+  EXECSTATEMENT=false
+else
+  TOEVAL=$1                                #Get command statement
+  EXECSTATEMENT=true
+fi
+
+while IFS="" read INPUTLINE                #Read each line from stdin
+do
+  if [ "$INPUTLINE" != "" ]; then          #Skip blank lines
+    TOEXEC="${TOEVAL//\{\}/$INPUTLINE}"    #Replace variable in command statement
+    if [ "$EXECSTATEMENT" = "true" ]; then
+      eval $TOEXEC                         #Execute command statement
+    else
+      printf "$TOEXEC\n"                   #Just print command statement
+    fi
+  fi
+done
